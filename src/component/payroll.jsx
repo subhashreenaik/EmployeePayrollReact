@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from "react";
+import { useEffect } from 'react';
 import './payroll.scss';
 import logo from './assets/images/logo.png';
 import Ellipse1 from './assets/profile-images/Ellipse -1.png';
@@ -7,27 +8,63 @@ import Ellipse2 from './assets/profile-images/Ellipse -2.png';
 import Ellipse8 from './assets/profile-images/Ellipse -8.png';
 import Ellipse7 from './assets/profile-images/Ellipse -7.png';
 function Payroll() {
-    const [name, setName] = useState("");
-    const [profilePic, setProfilePic] = useState("");
-    const [gender, setGender] = useState("");
-    const [isChecked, setIsChecked] = useState(false);
-    const [value, setValue] =  React.useState([300000,500000]);
-    const [day, setDay] = useState('');
-    const [month, setMonth] = useState('');
-    const [year, setYear] = useState('');
-    const [note,setNote] =useState('');
+    
+    const [user,setUser]=useState({
+        name:'',
+        profilePic:'',
+        gender:'',
+        allDepartment: [
+            'HR', 'Sales', 'Finance', 'Engineer', 'Others'
+        ],
+        departMentValue: [],  
+        salary:[300000,500000],
+        day: '',
+        month: '',
+        year: '',
+        notes: '',
+        id: '',
+        isUpdate: false,
+        
+    });
+    const [records,setRecords] =useState([]);
+    const handleInput = (event) => {
+        setUser({ ...user, [event.target.name]: event.target.value })
+        console.log(event.target.value)
+    }
+    const onCheckChange = (name) => {
+        let index = user.departMentValue.indexOf(name);
+
+        let checkArray = [...user.departMentValue]
+        if (index > -1)
+            checkArray.splice(index, 1)
+        else
+            checkArray.push(name);
+        setUser({ ...user, departMentValue: checkArray });
+    }
+    const getChecked = (name) => {
+        return user.departMentValue && user.departMentValue.includes(name);
+    }
+
+
   const rangeSelector = (event,newvalue) => {
-    setValue(newvalue);
+    setUser({ ...user, [event.target.name]: event.target.value });
     console.log(newvalue)
   };
-  const handleSubmit = event => {
-    event.preventDefault();
-    alert('You have submitted the form.')
-  }
+  const handleSubmit = (event) => {
+    console.log(user)
     
-    console.log(name,profilePic,gender,isChecked);
-    console.log(day+month+year);
-    console.log(note);
+        localStorage.setItem('employee', JSON.stringify(user));
+      
+    event.preventDefault();
+   
+    // const newRecord = {...user,id:new Date().getTime().toString()}
+    // setRecords =([...records,newRecord]);
+    // console.log(records)
+    }
+    
+
+    
+    
       return (
         <>
         <header className="header-content header">
@@ -40,73 +77,70 @@ function Payroll() {
      </div>
     </header>
     <div className="form-content">
-    <form className='form' onSubmit={handleSubmit} >
+    <form className='form' action="#" onSubmit={handleSubmit} >
     
-        <div className='form-head'>Employee Payroll form</div>
+        <div className='form-head'><center>Employee Payroll form</center></div>
         <div className="row-content">
         <label className="label text" htmlFor="name">Name</label>
-        <input type="text" name="name" id="name" className="input" value={name}
-        onChange={(e) => setName(e.target.value)} placeholder="Your Name ..." required/>
+        <input type="text" name="name" id="name" className="input" value={user.name}
+        onChange={handleInput} placeholder="Your Name ..." required/>
         <error-output className="text-error" ></error-output>
         </div>
         
         <div className="row-content">
-        <label class="label text" for="profile">Profile image</label>
+        <label className="label text" htmlFor="profilePic">Profile image</label>
         <div className="profile-radio-content">
                 <label>
-                    <input type="radio" id="profile1" value="profilepic1"  checked={profilePic === "profilepic1"}  onChange={(e) => setProfilePic(e.target.value)}/>
+                    <input type="radio" id="profile1"  name="profilePic" checked={user.profilePic === "profilepic1"}  onChange={handleInput} value="profilepic1"/>
                     <img className="profile" src={Ellipse1} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profile2" value="profile2" checked={profilePic === "profile2"} onChange={(e) => setProfilePic(e.target.value)}/>
+                    <input type="radio" id="profile2" name="profilePic"  checked={user.profilePic === "profile2"} onChange={handleInput} value="profile2"/>
                     <img className="profile" id="image2" src={Ellipse2} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profil3" value="profil3" checked={profilePic === "profile3"} onChange={(e) => setProfilePic(e.target.value)}/>
+                    <input type="radio" id="profil3" name="profilePic" checked={user.profilePic === "profile3"} onChange={handleInput} value="profil3"/>
                     <img className="profile" id="image3" src={Ellipse7} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profile4" value="profile4" checked={profilePic === "profile4"} onChange={(e) => setProfilePic(e.target.value)}/>
+                    <input type="radio" id="profile4" name="profilePic"  checked={user.profilePic === "profile4"} onChange={handleInput} value="profile4"/>
                     <img className="profile" id="image4" src={Ellipse8} alt="img"/>
                     </label>
                 </div>
             </div>
             <div className="row-content">
-            <label className="label text" for="gender">Gender</label>
+            <label className="label text" htmlFor='gender'>Gender</label>
             <div>
-                <input type="radio" id="male" name="gender" value="male" checked={gender === "male"}  onChange={(e) => setGender(e.target.value)}/>
+                <input type="radio" id="male" name="gender" value="male" checked={user.gender === "male"}  onChange={handleInput}/>
                 <label className="text" for="male">Male</label>
-                <input type="radio" id="female" name="gender" value="female" checked={gender === "female"}  onChange={(e) => setGender(e.target.value)}/>
+                <input type="radio" id="female" name="gender" value="female" checked={user.gender === "female"}  onChange={handleInput}/>
                 <label className="text" for="female">Female</label>
             </div>
             </div>
             <div className="row-content">
-            <label className="label text" for="department">Department</label>
+            <label className="label text" htmlFor="department">Department</label>
             <div>
-                <input className="checkbox" type="checkbox" id="hr" name="hr" value="HR"  onChange={(e) => setIsChecked(e.target.value)}/>
-                <label className="text" for="hr">HR</label>
-                <input className="checkbox" type="checkbox" id="sales" name="sales" value="Sales"  onChange={(e) => setIsChecked(e.target.value)}/>
-                <label className="text" for="sales">Sales</label>
-                <input className="checkbox" type="checkbox" id="finance" name="finance" value="Finance"  onChange={(e) => setIsChecked(e.target.value)}/>
-                <label className="text" for="finance">Finance</label>
-                <input className="checkbox" type="checkbox" id="engineer" name="engineer" value="Engineer"  onChange={(e) => setIsChecked(e.target.value)}/>
-                <label className="text" for="engineer">Engineer</label>
-                <input className="checkbox" type="checkbox" id="others" name="others" value="Others"  onChange={(e) => setIsChecked(e.target.value)}/>
-                <label className="text" for="others">Others</label>
+            {user.allDepartment.map(item => (
+                                <span key={item}>
+                                    <input className="checkbox" type="checkbox" onChange={() => onCheckChange(item)} name={item}
+                                        checked={getChecked(item)} value={item} />
+                                    <label className="text" htmlFor={item}>{item}</label>
+                                </span>
+                            ))}
             </div>
         </div>
         <div className="row-content">
-        <label className="label text" for="salary">Choose your Salary: </label>
+        <label className="label text" htmlFor="salary">Choose your Salary: </label>
         
         <input className="input" type="range" id="salary" name="salary" min="300000" max="500000" step="100"
-        value={value} onChange={rangeSelector} />
+        value={user.salary} onChange={rangeSelector} />
         <output className="salary-output text" for="salary">400000</output>
         </div>
         
         <div className="row-content">
-            <label className="label text" for="startDate">Start Date</label>
+            <label className="label text" htmlFor="startDate">Start Date</label>
             <div>
-                <select id="day" name="Day"  value={day} onChange={(e) => setDay(e.target.value)}>
+                <select id="day" name="day"  value={user.day} onChange={handleInput}>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -139,7 +173,7 @@ function Payroll() {
                     <option value="30">30</option>
                     <option value="31">31</option>
                 </select>
-                <select name="Month" id="month" value={month} onChange={(e) => setMonth(e.target.value)}>
+                <select name="month" id="month" value={user.month} onChange={handleInput}>
                     <option value="Jan">January</option>
                     <option value="Feb">Febuary</option>
                     <option value="Mar">March</option>
@@ -153,7 +187,7 @@ function Payroll() {
                     <option value="Nov">November</option>
                     <option value="Dec">December</option>
                 </select>
-                <select name="Year" id="year" value={year} onChange={(e) => setYear(e.target.value)}>
+                <select name="year" id="year" value={user.year} onChange={handleInput}>
                     <option value="2020">2021</option>
                     <option value="2020">2020</option>
                     <option value="2019">2019</option>
@@ -164,8 +198,8 @@ function Payroll() {
             </div>
         </div>
         <div className="row-content">
-        <label className="label text" for="notes">Notes</label>
-        <textarea id="notes" className="input" name="Notes" placeholder=""  value={note} onChange={(e) => setNote(e.target.value)}></textarea>
+        <label className="label text" htmlFor="notes">Notes</label>
+        <textarea id="notes" className="input" name="notes" placeholder=""  value={user.notes} onChange={handleInput}></textarea>
         </div>
         <div className="buttonParent">
             <a href="./dashboard" className="resetButton button cancelButton">Cancel</a>

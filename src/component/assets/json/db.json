@@ -1,16 +1,17 @@
 {
   "employee": [
-    {
-      "name": "mohit kumar new",
-      "gender": "male",
-      "departMent": [
-        "HR"
-      ],
-      "salary": "30000",
-      "startDate": "1 Jan 2020",
-      "notes": "",
-      "id": 1604589551457,
-      "profileUrl": "../assets/profile-images/Ellipse 1.png"
+    {"name":"subhashree",
+      "profilePic":"profilepic1",
+      "gender":"female",
+      "allDepartment":["HR","Sales","Finance","Engineer","Others"],
+      "departMentValue":["HR"],
+      "salary":"377600",
+      "day":"2",
+      "month":"Feb",
+      "year":"2020",
+      "notes":"home",
+      "id":"",
+      "isUpdate":false
     },
     {
       "name": "mohit kumar test",
