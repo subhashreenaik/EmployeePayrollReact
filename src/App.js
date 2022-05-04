@@ -12,7 +12,7 @@ import Dashboard from './component/dashboard'
       <>
       <Switch>
       <Route exact path='/payroll' component={Payroll}></Route>
-      <Route exact path='/dashboard' component={Dashboard}></Route>
+      <Route exact path='/' component={Dashboard}></Route>
       </Switch> 
       
       </>

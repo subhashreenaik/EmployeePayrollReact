@@ -1,13 +1,15 @@
 import React from 'react';
-import { useState } from "react";
+import {useState } from "react";
 import { useEffect } from 'react';
 import './payroll.scss';
+import employeeService from '../services/employeeservice'
+import api from '../api/employee';
 import logo from './assets/images/logo.png';
 import Ellipse1 from './assets/profile-images/Ellipse -1.png';
 import Ellipse2 from './assets/profile-images/Ellipse -2.png';
 import Ellipse8 from './assets/profile-images/Ellipse -8.png';
 import Ellipse7 from './assets/profile-images/Ellipse -7.png';
-function Payroll() {
+const Payroll = (props) =>{
     
     const [user,setUser]=useState({
         name:'',
@@ -16,8 +18,15 @@ function Payroll() {
         allDepartment: [
             'HR', 'Sales', 'Finance', 'Engineer', 'Others'
         ],
+        profilePicArray: [
+            {url: Ellipse1},
+            {url: Ellipse2},
+            {url: Ellipse8},
+            {url: Ellipse7}
+        ],
         departMentValue: [],  
         salary:[300000,500000],
+        startDate:'',
         day: '',
         month: '',
         year: '',
@@ -26,11 +35,29 @@ function Payroll() {
         isUpdate: false,
         
     });
-    const [records,setRecords] =useState([]);
-    const handleInput = (event) => {
+
+    //const [records,setRecords] =useState([]);
+
+    //Retrive employee data
+    // const retriveEmployeeData = async ()=>{
+    //     const response = await api.get("/employee");
+    //     return response.data;
+    // };
+    // useEffect(()=>{
+    //   const getAllData  = async ()=>{
+    //       const allEmployee = retriveEmployeeData();
+    //       if(allEmployee) setUser(allEmployee);
+    //   };
+    //    getAllData();
+    // },[]);
+    
+
+
+    const handleInput = (event) => {  
         setUser({ ...user, [event.target.name]: event.target.value })
         console.log(event.target.value)
     }
+
     const onCheckChange = (name) => {
         let index = user.departMentValue.indexOf(name);
 
@@ -50,17 +77,35 @@ function Payroll() {
     setUser({ ...user, [event.target.name]: event.target.value });
     console.log(newvalue)
   };
-  const handleSubmit = (event) => {
+
+
+  const handleSubmit = async (event) => {
     console.log(user)
-    
-        localStorage.setItem('employee', JSON.stringify(user));
-      
+    localStorage.setItem('employee', JSON.stringify(user)); 
     event.preventDefault();
-   
+    let object ={
+        name:user.name,
+        departMentValue:user.allDepartment,
+        gender:user.gender,
+        profilePic:user.profilePicArray,
+        salary:user.salary,
+        startDate: `${user.day} ${user.month} ${user.year}`,
+        id:user.id,
+        notes:user.notes
+        
+    }
+    
+    employeeService.addEmployee(object).then(data =>{
+        console.log("data added")
+        props.history.push(' ')
+    }).catch(err =>{
+        console.log("error while added")
+    })
     // const newRecord = {...user,id:new Date().getTime().toString()}
     // setRecords =([...records,newRecord]);
     // console.log(records)
     }
+    
     
 
     
@@ -91,19 +136,19 @@ function Payroll() {
         <label className="label text" htmlFor="profilePic">Profile image</label>
         <div className="profile-radio-content">
                 <label>
-                    <input type="radio" id="profile1"  name="profilePic" checked={user.profilePic === "profilepic1"}  onChange={handleInput} value="profilepic1"/>
+                    <input type="radio" id="profile1"  name="profilePic" checked={user.profilePicArray === "./assets/profile-images/Ellipse -1.png"}  onChange={handleInput} value="./assets/profile-images/Ellipse -1.png"/>
                     <img className="profile" src={Ellipse1} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profile2" name="profilePic"  checked={user.profilePic === "profile2"} onChange={handleInput} value="profile2"/>
+                    <input type="radio" id="profile2" name="profilePicArray"  checked={user.profilePicArray === "./assets/profile-images/Ellipse -2.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -2.png"/>
                     <img className="profile" id="image2" src={Ellipse2} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profil3" name="profilePic" checked={user.profilePic === "profile3"} onChange={handleInput} value="profil3"/>
+                    <input type="radio" id="profil3" name="profilePic" checked={user.profilePicArray === "./assets/profile-images/Ellipse -8.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -8.png"/>
                     <img className="profile" id="image3" src={Ellipse7} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profile4" name="profilePic"  checked={user.profilePic === "profile4"} onChange={handleInput} value="profile4"/>
+                    <input type="radio" id="profile4" name="profilePic"  checked={user.profilePicArray === "./assets/profile-images/Ellipse -7.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -7.png"/>
                     <img className="profile" id="image4" src={Ellipse8} alt="img"/>
                     </label>
                 </div>
