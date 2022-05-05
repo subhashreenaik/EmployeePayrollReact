@@ -2,13 +2,15 @@ import React from 'react';
 import {useState } from "react";
 import { useEffect } from 'react';
 import './payroll.scss';
-import employeeService from '../services/employeeservice'
-import api from '../api/employee';
+import { useParams } from "react-router-dom/cjs/react-router-dom.min";
+//import EmployeeService from '../services/employeeservice'
 import logo from './assets/images/logo.png';
+import { Link } from 'react-router-dom';
 import Ellipse1 from './assets/profile-images/Ellipse -1.png';
 import Ellipse2 from './assets/profile-images/Ellipse -2.png';
 import Ellipse8 from './assets/profile-images/Ellipse -8.png';
 import Ellipse7 from './assets/profile-images/Ellipse -7.png';
+import employeeservice from '../services/employeeservice';
 const Payroll = (props) =>{
     
     const [user,setUser]=useState({
@@ -19,10 +21,10 @@ const Payroll = (props) =>{
             'HR', 'Sales', 'Finance', 'Engineer', 'Others'
         ],
         profilePicArray: [
-            {url: Ellipse1},
-            {url: Ellipse2},
-            {url: Ellipse8},
-            {url: Ellipse7}
+            {url: './assets/profile-images/Ellipse -1.png'},
+            {url: './assets/profile-images/Ellipse -2.png'},
+            {url:'./assets/profile-images/Ellipse -8.png'},
+            {url:'./assets/profile-images/Ellipse -7.png'}
         ],
         departMentValue: [],  
         salary:[300000,500000],
@@ -33,30 +35,95 @@ const Payroll = (props) =>{
         notes: '',
         id: '',
         isUpdate: false,
-        
+        error: {
+            name: '',
+            profilePic: '',
+            gender: '',
+            department: '',
+            salary: '',
+            startDate: ''
+        }
     });
-
-    //const [records,setRecords] =useState([]);
-
-    //Retrive employee data
-    // const retriveEmployeeData = async ()=>{
-    //     const response = await api.get("/employee");
-    //     return response.data;
-    // };
-    // useEffect(()=>{
-    //   const getAllData  = async ()=>{
-    //       const allEmployee = retriveEmployeeData();
-    //       if(allEmployee) setUser(allEmployee);
-    //   };
-    //    getAllData();
-    // },[]);
+    const validateData = async () => {
+        let isError = false;
+        let error = {
+            department: '',
+            name: '',
+            gender: '',
+            salary: '',
+            profilePic: '',
+            notes:''
+        }
+        if (!user.name.match('^[A-Z]{1}[a-z]{3,}$')) {
+            error.name = 'Invalid NAME'
+            isError = true;
+        }
+        if (user.gender.length < 1) {
+            error.gender = 'Select GENDER'
+            isError = true;
+        }
+        if (user.salary.length < 1) {
+            error.salary = 'Required SALARY'
+            isError = true;
+        }
+        if (user.profilePic.length < 1) {
+            error.profilePic = 'Select PROFILE PIC'
+            isError = true;
+        }
+        if (user.departMentValue.length < 1) {
+            error.department = 'Select DEPARTMENT'
+            isError = true;
+        }
+        if (user.notes.length < 1){
+            error.notes = "Required NOTES"
+            isError = true;
+        }
+        setUser({ ...user, error: error })
+        return isError;
+    }
     
 
-
-    const handleInput = (event) => {  
+    const handleInput = async event => {  
         setUser({ ...user, [event.target.name]: event.target.value })
         console.log(event.target.value)
     }
+    const params = useParams();
+    const getEmployeeByID = (id) => {
+        employeeservice.getEmployee(id).then((response) => {
+            let obj = response.data;
+            console.log(obj);
+            setData(obj);
+        }).catch((error) => {
+            alert(error);
+        });
+    }
+    const setData = (obj) => {
+        let array=obj.startDate;
+        setUser({
+             ...user,
+             ...obj,
+             id: obj.id,
+             name: obj.name,
+             profilePic: obj.profilePic,
+             gender: obj.gender,
+             departMentValue: obj.department,
+             salary: obj.salary,
+             notes: obj.notes,
+             isUpdate: true,
+             day:array[0]+array[1],
+                       month:array[3]+array[4]+array[5],
+                       year:array[7]+array[8]+array[9]+array[10],
+             
+         });
+     }
+        
+        
+        useEffect(() => {
+            if (params.id) {
+                getEmployeeByID(params.id);
+            }
+        }, []);
+    
 
     const onCheckChange = (name) => {
         let index = user.departMentValue.indexOf(name);
@@ -77,17 +144,20 @@ const Payroll = (props) =>{
     setUser({ ...user, [event.target.name]: event.target.value });
     console.log(newvalue)
   };
-
+  
 
   const handleSubmit = async (event) => {
     console.log(user)
-    localStorage.setItem('employee', JSON.stringify(user)); 
+    //localStorage.setItem('employee', JSON.stringify(user)); 
     event.preventDefault();
+    if (await validateData()) {
+        return;
+    }
     let object ={
         name:user.name,
-        departMentValue:user.allDepartment,
+        department:user.departMentValue,
         gender:user.gender,
-        profilePic:user.profilePicArray,
+        profilePic:user.profilePic,
         salary:user.salary,
         startDate: `${user.day} ${user.month} ${user.year}`,
         id:user.id,
@@ -95,18 +165,24 @@ const Payroll = (props) =>{
         
     }
     
-    employeeService.addEmployee(object).then(data =>{
+    if (user.isUpdate) {
+        employeeservice.updateEmployee(params.id, object).then((response) => {
+            props.history.push('');
+        }).catch((error) => {
+            alert(error);
+        })
+    }
+    else {
+    
+    employeeservice.addEmployee(object).then(data =>{
         console.log("data added")
         props.history.push(' ')
-    }).catch(err =>{
+    }).catch(error =>{
         console.log("error while added")
     })
-    // const newRecord = {...user,id:new Date().getTime().toString()}
-    // setRecords =([...records,newRecord]);
-    // console.log(records)
+    
     }
-    
-    
+}
 
     
     
@@ -129,29 +205,30 @@ const Payroll = (props) =>{
         <label className="label text" htmlFor="name">Name</label>
         <input type="text" name="name" id="name" className="input" value={user.name}
         onChange={handleInput} placeholder="Your Name ..." required/>
-        <error-output className="text-error" ></error-output>
+        <error-output className="text-error" >{user.error.name}</error-output>
         </div>
         
         <div className="row-content">
         <label className="label text" htmlFor="profilePic">Profile image</label>
         <div className="profile-radio-content">
                 <label>
-                    <input type="radio" id="profile1"  name="profilePic" checked={user.profilePicArray === "./assets/profile-images/Ellipse -1.png"}  onChange={handleInput} value="./assets/profile-images/Ellipse -1.png"/>
+                    <input type="radio" id="profile1"  name="profilePic" checked={user.profilePic === "./assets/profile-images/Ellipse -1.png"}  onChange={handleInput} value="./assets/profile-images/Ellipse -1.png"/>
                     <img className="profile" src={Ellipse1} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profile2" name="profilePicArray"  checked={user.profilePicArray === "./assets/profile-images/Ellipse -2.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -2.png"/>
+                    <input type="radio" id="profile2" name="profilePic"  checked={user.profilePic === "./assets/profile-images/Ellipse -2.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -2.png"/>
                     <img className="profile" id="image2" src={Ellipse2} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profil3" name="profilePic" checked={user.profilePicArray === "./assets/profile-images/Ellipse -8.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -8.png"/>
+                    <input type="radio" id="profile3" name="profilePic" checked={user.profilePic === "./assets/profile-images/Ellipse -8.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -8.png"/>
                     <img className="profile" id="image3" src={Ellipse7} alt="img"/>
                     </label>
                     <label>
-                    <input type="radio" id="profile4" name="profilePic"  checked={user.profilePicArray === "./assets/profile-images/Ellipse -7.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -7.png"/>
+                    <input type="radio" id="profile4" name="profilePic"  checked={user.profilePic === "./assets/profile-images/Ellipse -7.png"} onChange={handleInput} value="./assets/profile-images/Ellipse -7.png"/>
                     <img className="profile" id="image4" src={Ellipse8} alt="img"/>
                     </label>
                 </div>
+                <error-output className="text-error" >{user.error.profilePic}</error-output>
             </div>
             <div className="row-content">
             <label className="label text" htmlFor='gender'>Gender</label>
@@ -161,6 +238,7 @@ const Payroll = (props) =>{
                 <input type="radio" id="female" name="gender" value="female" checked={user.gender === "female"}  onChange={handleInput}/>
                 <label className="text" for="female">Female</label>
             </div>
+            <error-output className="text-error" >{user.error.gender}</error-output>
             </div>
             <div className="row-content">
             <label className="label text" htmlFor="department">Department</label>
@@ -173,6 +251,7 @@ const Payroll = (props) =>{
                                 </span>
                             ))}
             </div>
+            <error-output className="text-error" >{user.error.department}</error-output>
         </div>
         <div className="row-content">
         <label className="label text" htmlFor="salary">Choose your Salary: </label>
@@ -180,7 +259,9 @@ const Payroll = (props) =>{
         <input className="input" type="range" id="salary" name="salary" min="300000" max="500000" step="100"
         value={user.salary} onChange={rangeSelector} />
         <output className="salary-output text" for="salary">400000</output>
+        <error-output className="text-error" >{user.error.salary}</error-output>
         </div>
+        
         
         <div className="row-content">
             <label className="label text" htmlFor="startDate">Start Date</label>
@@ -245,11 +326,14 @@ const Payroll = (props) =>{
         <div className="row-content">
         <label className="label text" htmlFor="notes">Notes</label>
         <textarea id="notes" className="input" name="notes" placeholder=""  value={user.notes} onChange={handleInput}></textarea>
+        <error-output className="text-error" >{user.error.notes}</error-output>
         </div>
         <div className="buttonParent">
-            <a href="./dashboard" className="resetButton button cancelButton">Cancel</a>
+            <Link to="/" className="resetButton button cancelButton">Cancel</Link>
         <div className="submit-reset">
-             <button type="submit" className="button submitButton" id="submitButton">Submit</button>
+            {/* <Link to="/" className="button submitButton" > */}
+             <button type="submit" className="button submitButton" id="submitButton">{user.isUpdate ? 'Update' : 'Submit'}</button>
+             {/* </Link> */}
              <button type="reset" className="resetButton button">Reset</button>
          </div>
       </div>
