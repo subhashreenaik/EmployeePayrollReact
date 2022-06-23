@@ -7,21 +7,21 @@ console.log(config.baseURL)
     
     addEmployee(data){
         console.log("add employee member")
-        return axios.post(`${this.baseURL}employee`,data);
+        return axios.post(`${this.baseURL}/create`,data);
     }
     getAllEmployee(){
-        return axios.get(`${this.baseURL}employee`);
+        return axios.get(`${this.baseURL}/get`);
     } 
-    getEmployee(employeeID) {
-        return axios.get(`${this.baseURL}employee/${employeeID}`);
+    getEmployee(employeeId) {
+        return axios.get(`${this.baseURL}/get/${employeeId}`);
     }
     
-    updateEmployee(employeeID,data) {
-        return axios.put(`${this.baseURL}employee/${employeeID}`, data);
+    updateEmployee(id,data) {
+        return axios.put(`${this.baseURL}/edit/${id}`, data);
     }
     
     deleteEmployee(employeeID) {
-        return axios.delete(`${this.baseURL}employee/${employeeID}`);
+        return axios.delete(`${this.baseURL}/delete/${employeeID}`);
     }
     
 }

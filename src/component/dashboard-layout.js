@@ -57,7 +57,7 @@ const DashboardLayout = (props) => {
                                   ? Ellipse8
                                   : Ellipse7
                             } alt=""/></td>
-                            <td>{element.name}</td>
+                            <td>{element.fullName}</td>
                             <td>{element.gender}</td>
                             <td>
                                 {element.department && element.department.map((dept => 
