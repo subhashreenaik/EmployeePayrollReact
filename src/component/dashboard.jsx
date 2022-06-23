@@ -25,7 +25,7 @@ useEffect(() => {
 const getAllEmployees = async () => {
     employeeservice.getAllEmployee().then((employee) => {
        
-    const allEmployees = employee.data;
+    const allEmployees = employee.data.data;
        setEmployee(allEmployees);
    }).catch((error) => {
        alert(error);
@@ -47,11 +47,11 @@ const getAllEmployees = async () => {
         <div className="main-content">
             <div className="header-content">
                <div className="emp-detail-text"><strong>Employee Details</strong>
-                  <div className="emp-count  add-button">10</div>
+                  <div className="emp-count  add-button">{employeeArray.length}</div>
                 </div>
            <div className="add-botton">
            <Link to="/payroll" className="add-button">Add User
-           <img className="add-button" src={adduser} alt=""/>
+           
             </Link>
            </div>
             </div>   

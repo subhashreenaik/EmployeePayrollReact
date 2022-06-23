@@ -90,7 +90,7 @@ const Payroll = (props) =>{
     const params = useParams();
     const getEmployeeByID = (id) => {
         employeeservice.getEmployee(id).then((response) => {
-            let obj = response.data;
+            let obj = response.data.data;
             console.log(obj);
             setData(obj);
         }).catch((error) => {
@@ -103,7 +103,7 @@ const Payroll = (props) =>{
              ...user,
              ...obj,
              id: obj.id,
-             name: obj.name,
+             name: obj.fullName,
              profilePic: obj.profilePic,
              gender: obj.gender,
              departMentValue: obj.department,
@@ -154,7 +154,7 @@ const Payroll = (props) =>{
         return;
     }
     let object ={
-        name:user.name,
+        fullName:user.name,
         department:user.departMentValue,
         gender:user.gender,
         profilePic:user.profilePic,

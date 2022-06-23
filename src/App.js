@@ -16,6 +16,7 @@ import { BrowserRouter as Router } from "react-router-dom";
       <Route exact path='/payroll' component={Payroll}></Route>
       <Route exact path='/' component={Dashboard}></Route>
       <Route exact path="/payroll/:id" component={Payroll}/>
+    
       </Switch> 
       
       </>
